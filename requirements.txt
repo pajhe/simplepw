@@ -1,0 +1,6 @@
+json
+uuid
+click
+bcrypt
+cryptography
+setuptools
