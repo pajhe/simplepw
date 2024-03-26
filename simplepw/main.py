@@ -7,8 +7,8 @@ import uuid
 import bcrypt
 from cryptography.fernet import Fernet
 
-CONFIG_DIR = os.path.expanduser('~/.pwd')
-CONFIG_KEY_FILE = os.path.join(CONFIG_DIR, 'pwd.key')
+CONFIG_DIR = os.path.expanduser('~/.spw')
+CONFIG_KEY_FILE = os.path.join(CONFIG_DIR, 'pw.key')
 PASSWORD_STORE_FILE = os.path.join(CONFIG_DIR, 'data.json')
 MASTER_PASSWORD_FILE = os.path.join(CONFIG_DIR, 'master_password.hash')
 
@@ -195,15 +195,9 @@ def show_tutorial():
     tutorial_text = """
 Welcome to the Password Manager Tutorial!
 
-1. Setting a Master Password:
-   Your master password is the key to accessing all other passwords stored in this tool.
-   It's important to choose a strong, memorable password, as it will be required to access the tool and manage your passwords.
-
-2. Generating a Password:
-   You can generate a strong, random password by selecting the 'Generate and Save Password' option. 
-   If you want to generate a password without saving it, choose the 'Generate a Password without Saving' option.
-
-Remember, your passwords are encrypted and securely stored, but always be cautious and ensure your master password is kept safe.
+Important Notice: This password generator and password safe are provided "as is" without warranty of any kind. 
+While designed with security in mind, the developer cannot guarantee its effectiveness for real-world use. 
+It is strongly recommended to exercise caution and consider the potential risks before using this tool for sensitive information.
 
 Enjoy using Password Manager!
 """
