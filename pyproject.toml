@@ -5,6 +5,8 @@ description = "simple cli tool for creating and managing securely generated pass
 authors = ["pajhe <piejeys@proton.me>"]
 readme = "README.md"
 license = "MIT"
+packages = [{include = "src"}]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"

@@ -1,31 +1,37 @@
 import json
-import os
 import click
 import string
 import secrets
 import uuid
 import bcrypt
 from cryptography.fernet import Fernet
+from pathlib import Path
+import os
 
-CONFIG_DIR = os.path.expanduser('~/.spw')
-CONFIG_KEY_FILE = os.path.join(CONFIG_DIR, 'pw.key')
-PASSWORD_STORE_FILE = os.path.join(CONFIG_DIR, 'data.json')
-MASTER_PASSWORD_FILE = os.path.join(CONFIG_DIR, 'master_password.hash')
+# Determine the appropriate configuration directory based on the operating system
+config_dir_name = 'spw'
+if os.name == 'nt':  # Windows
+    CONFIG_DIR = Path(os.environ['APPDATA']) / config_dir_name
+else:
+    CONFIG_DIR = Path.home() / f".{config_dir_name}"
+
+CONFIG_KEY_FILE = CONFIG_DIR / 'pw.key'
+PASSWORD_STORE_FILE = CONFIG_DIR / 'data.json'
+MASTER_PASSWORD_FILE = CONFIG_DIR / 'master_password.hash'
 
 
 def ensure_setup():
-    if not os.path.exists(CONFIG_DIR):
-        os.makedirs(CONFIG_DIR)
+    if not CONFIG_DIR.exists():
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
-    if not os.path.exists(CONFIG_KEY_FILE):
+    if not CONFIG_KEY_FILE.exists():
         key = Fernet.generate_key()
         with open(CONFIG_KEY_FILE, 'wb') as key_file:
             key_file.write(key)
 
 
 def load_key():
-    with open(CONFIG_KEY_FILE, 'rb') as key_file:
-        return key_file.read()
+    return CONFIG_KEY_FILE.read_bytes()
 
 
 def encrypt_message(message, key):
@@ -53,15 +59,14 @@ def set_master_password():
 
 def verify_master_password():
     try:
-        with open(MASTER_PASSWORD_FILE, 'rb') as file:
-            stored_hash = file.read()
-            password = click.prompt('Enter your master password to unlock the tool', hide_input=True, type=str)
-            if bcrypt.checkpw(password.encode(), stored_hash):
-                click.echo("Password verified successfully. Access granted.")
-                return True
-            else:
-                click.echo("Incorrect password. Access denied.")
-                return False
+        stored_hash = MASTER_PASSWORD_FILE.read_bytes()
+        password = click.prompt('Enter your master password to unlock the tool', hide_input=True, type=str)
+        if bcrypt.checkpw(password.encode(), stored_hash):
+            click.echo("Password verified successfully. Access granted.")
+            return True
+        else:
+            click.echo("Incorrect password. Access denied.")
+            return False
     except FileNotFoundError:
         click.echo("Master password not set. Setting up now.")
         set_master_password()
@@ -71,12 +76,10 @@ def verify_master_password():
 def save_password(name, password):
     key = load_key()
     encrypted_password = encrypt_message(password, key)
-    # Generate a unique ID for this entry
     entry_id = str(uuid.uuid4())
     try:
         with open(PASSWORD_STORE_FILE, 'r+') as file:
             data = json.load(file)
-            # Adjust structure to accommodate for ID and Name
             data[entry_id] = {"name": name, "password": encrypted_password.hex()}
             file.seek(0)
             file.truncate()
@@ -89,39 +92,30 @@ def save_password(name, password):
 def delete_password(entry_id):
     key = load_key()
     try:
-        with open(PASSWORD_STORE_FILE, 'r') as file:
-            data = json.load(file)
-            # First, check if the entry exists
-            if entry_id in data:
-                # Decrypt the password for display
-                entry = data[entry_id]
-                decrypted_pass = decrypt_message(bytes.fromhex(entry["password"]), key)
-                # Display the name and password, ask for confirmation
-                click.echo(f"Name: {entry['name']}, Password: {decrypted_pass}")
-                confirmation = click.prompt(f"Are you sure you want to delete the password for '{entry['name']}'? (yes/no)", type=str)
-                if confirmation.lower() == 'yes':
-                    # Proceed with deletion if confirmed
-                    with open(PASSWORD_STORE_FILE, 'r+') as file:
-                        del data[entry_id]
-                        file.seek(0)
-                        file.truncate()
-                        json.dump(data, file)
-                        click.echo("Password deleted successfully.")
-                else:
-                    click.echo("Deletion cancelled.")
+        data = json.loads(PASSWORD_STORE_FILE.read_text())
+        if entry_id in data:
+            entry = data[entry_id]
+            decrypted_pass = decrypt_message(bytes.fromhex(entry["password"]), key)
+            confirmation = click.confirm(f"Are you sure you want to delete the password for '{entry['name']}'?",
+                                         default=False)
+            if confirmation:
+                del data[entry_id]
+                PASSWORD_STORE_FILE.write_text(json.dumps(data))
+                click.echo("Password deleted successfully.")
             else:
-                click.echo("No matching ID found.")
+                click.echo("Deletion cancelled.")
+        else:
+            click.echo("No matching ID found.")
     except FileNotFoundError:
         click.echo("No saved passwords found.")
 
 
 def delete_all_passwords():
-    # Confirm before deleting all passwords
-    confirmation = click.prompt(
-        "Are you sure you want to delete ALL saved passwords? This action cannot be undone. (yes/no)", type=str)
-    if confirmation.lower() == 'yes':
+    confirmation = click.confirm("Are you sure you want to delete ALL saved passwords? This action cannot be undone.",
+                                 default=False)
+    if confirmation:
         try:
-            os.remove(PASSWORD_STORE_FILE)
+            PASSWORD_STORE_FILE.unlink()
             click.echo("All passwords have been successfully deleted.")
         except FileNotFoundError:
             click.echo("No saved passwords found.")
@@ -132,17 +126,15 @@ def delete_all_passwords():
 def display_saved_passwords():
     key = load_key()
     try:
-        with open(PASSWORD_STORE_FILE, 'r') as file:
-            data = json.load(file)
-            if data:
-                header = f"{'ID':<40} | {'Name':<20} | {'Password':<20}"
-                print(header)
-                print("-" * (len(header)+3))
-                for entry_id, details in data.items():
-                    decrypted_pass = decrypt_message(bytes.fromhex(details["password"]), key)
-                    print(f"{entry_id:<40} | {details['name']:<20} | {decrypted_pass:<20}")
-            else:
-                click.echo("No saved passwords found.")
+        data = json.loads(PASSWORD_STORE_FILE.read_text())
+        if data:
+            print(f"{'ID':<40} | {'Name':<20} | {'Password':<20}")
+            print("-" * 80)
+            for entry_id, details in data.items():
+                decrypted_pass = decrypt_message(bytes.fromhex(details["password"]), key)
+                print(f"{entry_id:<40} | {details['name']:<20} | {decrypted_pass:<20}")
+        else:
+            click.echo("No saved passwords found.")
     except FileNotFoundError:
         click.echo("No saved passwords found.")
 
@@ -151,7 +143,6 @@ def interactive_mode():
     click.clear()
     click.echo("Welcome to Password Manager")
 
-    # Verify the master password once at the start
     if not verify_master_password():
         click.echo("Master password verification failed. Exiting interactive mode.")
         return
@@ -181,7 +172,7 @@ def interactive_mode():
             entry_id = click.prompt('\nPlease enter the ID of the password to delete', type=str)
             delete_password(entry_id)
         elif choice == 5:
-            delete_all_passwords()  # This function will be implemented below
+            delete_all_passwords()
         elif choice == 6:
             click.echo("\nExiting interactive mode. Goodbye!")
             break
@@ -213,32 +204,26 @@ Enjoy using Password Manager!
 def main(length, save, list, delete, generate):
     ensure_setup()
 
-    # Directly generate a password if the --generate flag is used, skip master password check
     if generate and not (save or list or delete):
         password = generate_password(length)
         click.echo(f'Generated password: {password}')
         return
 
-    # Proceed with master password verification for other actions that require it
     if save or list or delete:
         if not verify_master_password():
             return
 
-    # Actions based on command line flags
     if list:
         display_saved_passwords()
     elif delete:
         delete_password(delete)
     elif save:
-        # Even though save flag might have been set with generate, generate flag has precedence
-        # Here, we ensure the master password has already been verified
         password = generate_password(length)
         click.echo(f'Generated password: {password}')
         name = click.prompt('Please enter a name for the password', type=str)
         save_password(name, password)
         click.echo("Password saved successfully.")
-    elif not save and not list and not delete:
-        # Default to interactive mode if no specific flag is provided or operations to execute
+    else:
         interactive_mode()
 
 
