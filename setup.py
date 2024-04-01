@@ -11,8 +11,9 @@ setup(
         'bcrypt'
     ],
     entry_points={
-        'console_scripts': [
-            'spw=spw.main:main',  # Definiert den Befehl 'pwdtool', der die Funktion 'main()' in 'main.py' aufruft
+        "console_scripts": [
+            "simplepw=simplepw.main:main",  # Replace 'your_package' with the actual package name
+            # The module and function within your package that contains the main logic of your CLI tool.
         ],
     },
     # Metadaten für Ihr Projekt
