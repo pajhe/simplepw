@@ -1,12 +1,5 @@
-import json
 import click
-import string
-import secrets
-import uuid
-import bcrypt
-from cryptography.fernet import Fernet
-from methods import ensure_setup, load_key, generate_password, save_password, delete_password, delete_all_passwords, display_saved_passwords, verify_master_password, add_existing_password
-from pathlib import Path
+from methods import ensure_setup, generate_password, save_password, delete_password, delete_all_passwords, display_saved_passwords, verify_master_password, add_existing_password
 import os
 
 def interactive_mode():
