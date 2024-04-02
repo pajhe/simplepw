@@ -1,0 +1,10 @@
+pyproject.toml
+setup.py
+simplepw/__init__.py
+simplepw/main.py
+simplepw.egg-info/PKG-INFO
+simplepw.egg-info/SOURCES.txt
+simplepw.egg-info/dependency_links.txt
+simplepw.egg-info/entry_points.txt
+simplepw.egg-info/requires.txt
+simplepw.egg-info/top_level.txt
