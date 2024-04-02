@@ -8,3 +8,12 @@ To install Password Manager, first, download the wheel file from the `dist` fold
 
 ```bash
 pip install path/to/your/wheel_file.whl
+```
+
+## Usage Instructions
+
+To use Password Manager, activate the Command Line Interface (CLI) by running the following command:
+
+```bash
+spw
+```
