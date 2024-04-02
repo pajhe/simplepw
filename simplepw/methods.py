@@ -137,7 +137,31 @@ def display_saved_passwords():
     except FileNotFoundError:
         click.echo("No saved passwords found.")
 
-        
+
+def add_existing_password():
+    """Prompts the user for an existing password's name and password, encrypts it, and saves it to the password store."""
+
+    key = load_key()  # Load the encryption key
+
+    name = click.prompt('Please enter the name for the password', type=str)
+    password = click.prompt('Please enter the password', hide_input=True, type=str)
+
+    encrypted_password = encrypt_message(password, key)  # Encrypt the password
+    entry_id = str(uuid.uuid4())  # Generate a unique ID
+
+    try:
+        with open(PASSWORD_STORE_FILE, 'r+') as file:
+            data = json.load(file)
+            data[entry_id] = {"name": name, "password": encrypted_password.hex()}
+            file.seek(0)
+            file.truncate()
+            json.dump(data, file)
+    except FileNotFoundError:
+        with open(PASSWORD_STORE_FILE, 'w') as file:
+            json.dump({entry_id: {"name": name, "password": encrypted_password.hex()}}, file)
+
+    click.echo(f"Password '{name}' added successfully.")
+
 def show_tutorial():
     tutorial_text = """
 Welcome to the Password Manager Tutorial!

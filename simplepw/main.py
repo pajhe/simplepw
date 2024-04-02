@@ -5,7 +5,7 @@ import secrets
 import uuid
 import bcrypt
 from cryptography.fernet import Fernet
-from methods import ensure_setup, load_key, encrypt_message, decrypt_message, generate_password, save_password, delete_password, delete_all_passwords, display_saved_passwords, verify_master_password
+from methods import ensure_setup, load_key, generate_password, save_password, delete_password, delete_all_passwords, display_saved_passwords, verify_master_password, add_existing_password
 from pathlib import Path
 import os
 
@@ -23,7 +23,8 @@ def interactive_mode():
         click.echo("3. List Saved Passwords")
         click.echo("4. Delete a Password")
         click.echo("5. Delete All Saved Passwords")
-        click.echo("6. Exit")
+        click.echo("6. Add Existing Password")  # New option added
+        click.echo("7. Exit")
         choice = click.prompt("\nPlease enter your choice", type=int)
 
         if choice == 1:
@@ -43,7 +44,9 @@ def interactive_mode():
             delete_password(entry_id)
         elif choice == 5:
             delete_all_passwords()
-        elif choice == 6:
+        elif choice == 6:  # Handle adding existing password
+            add_existing_password()
+        elif choice == 7:
             click.echo("\nExiting interactive mode. Goodbye!")
             break
         else:
