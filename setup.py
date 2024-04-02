@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='simple-pw',  # Der Name Ihres Projekts
-    version='0.1.8',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
+    name='simplepw',  # Der Name Ihres Projekts
+    version='0.1.9',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -12,12 +12,12 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "simplepw=simplepw.main:main",  # Replace 'your_package' with the actual package name
+            "spw=simplepw.main:main",  # Replace 'your_package' with the actual package name
             # The module and function within your package that contains the main logic of your CLI tool.
         ],
     },
     # Metadaten für Ihr Projekt
-    author='piejeys',
-    description='A CLI Application for generating and save passwords',
+    author='pajhe',
+    description='A CLI Application for generating and managing passwords',
     keywords='password generation',
 )

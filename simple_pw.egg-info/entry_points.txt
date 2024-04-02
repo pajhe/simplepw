@@ -1,0 +1,2 @@
+[console_scripts]
+simplepw = simplepw.main:main

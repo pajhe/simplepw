@@ -1,0 +1,3 @@
+cryptography>=2.8
+click
+bcrypt

@@ -204,6 +204,8 @@ Enjoy using Password Manager!
 def main(length, save, list, delete, generate):
     ensure_setup()
 
+    click.echo("WARNING: This password manager is for educational purposes only. It may not be suitable for real-world sensitive information.")
+
     if generate and not (save or list or delete):
         password = generate_password(length)
         click.echo(f'Generated password: {password}')
@@ -213,18 +215,22 @@ def main(length, save, list, delete, generate):
         if not verify_master_password():
             return
 
-    if list:
-        display_saved_passwords()
-    elif delete:
-        delete_password(delete)
-    elif save:
-        password = generate_password(length)
-        click.echo(f'Generated password: {password}')
-        name = click.prompt('Please enter a name for the password', type=str)
-        save_password(name, password)
-        click.echo("Password saved successfully.")
-    else:
+    while True:
+        os.system('clear')  # Clear entire terminal on Linux/macOS
+        # For Windows, use os.system('cls')
+
         interactive_mode()
+
+        choice = click.prompt("\nPlease enter your choice", type=int)
+        # ... process user choice ...
+
+        click.pause(info='\nPress any key to continue...')
+
+        os.system('clear')  # Clear entire terminal again
+
+        # Exit the loop if user chooses option 6 (Exit)
+        if choice == 6:
+            break
 
 
 if __name__ == '__main__':
