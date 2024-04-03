@@ -2,13 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name='simplepw',  # Der Name Ihres Projekts
-    version='0.1.9',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
+    version='0.2.0',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'cryptography>=2.8',  # Ersetzen Sie dies entsprechend Ihrer tatsächlichen cryptography-Version
         'click',  # Ersetzen Sie dies entsprechend Ihrer tatsächlichen click-Version
-        'bcrypt'
+        'bcrypt',
+        'pathlib'
     ],
     entry_points={
         "console_scripts": [

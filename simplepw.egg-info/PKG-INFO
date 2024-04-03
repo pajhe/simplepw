@@ -1,9 +1,10 @@
 Metadata-Version: 2.1
 Name: simplepw
-Version: 0.1.9
+Version: 0.2.0
 Summary: A CLI Application for generating and managing passwords
 Author: pajhe
 Keywords: password generation
 Requires-Dist: cryptography>=2.8
 Requires-Dist: click
 Requires-Dist: bcrypt
+Requires-Dist: pathlib
