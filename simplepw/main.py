@@ -184,41 +184,65 @@ def interactive_mode():
         return
 
     while True:
-        click.echo("\n1. Generate and Save a Password")
-        click.echo("2. Generate a Password without Saving")
-        click.echo("3. List Saved Passwords")
-        click.echo("4. Delete a Password")
-        click.echo("5. Delete All Saved Passwords")
-        click.echo("6. Add Existing Password")  # New option added
-        click.echo("7. Exit")
+        click.echo("\n1. Add Passwords")
+        click.echo("2. List Saved Passwords")
+        click.echo("3. Manage Saved Passwords")
+        click.echo("4. Exit")
         choice = click.prompt("\nPlease enter your choice", type=int)
 
         if choice == 1:
-            length = click.prompt('\nPlease enter a password length', default=24, type=int)
-            name = click.prompt('Please enter a name for the password', type=str)
-            password = generate_password(length)
-            save_password(name, password)
-            click.echo(f'Generated and saved password: {password}\n')
+            add_password_menu()
         elif choice == 2:
-            length = click.prompt('\nPlease enter a password length', default=24, type=int)
-            password = generate_password(length)
-            click.echo(f'Generated password: {password}\n')
-        elif choice == 3:
             display_saved_passwords()
+        elif choice == 3:
+            delete_password_menu()
         elif choice == 4:
-            entry_id = click.prompt('\nPlease enter the ID of the password to delete', type=str)
-            delete_password(entry_id)
-        elif choice == 5:
-            delete_all_passwords()
-        elif choice == 6:  # Handle adding existing password
-            add_existing_password()
-        elif choice == 7:
             click.echo("\nExiting interactive mode. Goodbye!")
             break
         else:
             click.echo("\nInvalid choice. Please try again.")
 
         click.pause(info='\nPress any key to continue...')
+
+
+def add_password_menu():
+    click.clear()
+    click.echo("\nAdd Password")
+    click.echo("1. Generate and Save a Password")
+    click.echo("2. Add Existing Password")
+    click.echo("3. Exit.")
+    choice = click.prompt("\nPlease enter your choice", type=int)
+
+    if choice == 1:
+        length = click.prompt('\nPlease enter a password length', default=24, type=int)
+        name = click.prompt('Please enter a name for the password', type=str)
+        password = generate_password(length)
+        save_password(name, password)
+        click.echo(f'Generated and saved password: {password}\n')
+    elif choice == 2:
+        add_existing_password()
+    elif choice == 3:  
+        return
+    else:
+        click.echo("\nInvalid choice. Please try again.")
+
+
+def delete_password_menu():
+    click.clear()
+    click.echo("\nManage Saved Passwords")
+    click.echo("1. Delete a Password")
+    click.echo("2. Delete All Saved Passwords")
+    click.echo("3. Exit.")
+    choice = click.prompt("\nPlease enter your choice", type=int)
+
+    if choice == 1:
+        delete_password(click.prompt('\nPlease enter the ID of the password to delete', type=str))
+    elif choice == 2:
+        delete_all_passwords()
+    elif choice == 3: 
+        return  
+    else:
+        click.echo("\nInvalid choice. Please try again.")
 
 
 @click.command()
