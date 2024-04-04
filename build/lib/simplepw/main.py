@@ -1,9 +1,7 @@
-import click
 import json
 import click
 import string
 import secrets
-import uuid
 import bcrypt
 from cryptography.fernet import Fernet
 from pathlib import Path
@@ -42,6 +40,15 @@ def decrypt_message(encrypted_message, key):
     return Fernet(key).decrypt(encrypted_message).decode()
 
 
+def get_next_id():
+    try:
+        with open(PASSWORD_STORE_FILE, 'r') as file:
+            data = json.load(file)
+            return max(int(key) for key in data.keys()) + 1  # Find the highest ID and increment
+    except (FileNotFoundError, ValueError):
+        return 1  # Start with 1 if no saved passwords or invalid data
+
+
 def generate_password(length):
     alphabet = string.ascii_letters + string.digits + string.punctuation
     return ''.join(secrets.choice(alphabet) for i in range(length))
@@ -76,7 +83,7 @@ def verify_master_password():
 def save_password(name, password):
     key = load_key()
     encrypted_password = encrypt_message(password, key)
-    entry_id = str(uuid.uuid4())
+    entry_id = get_next_id()
     try:
         with open(PASSWORD_STORE_FILE, 'r+') as file:
             data = json.load(file)
@@ -136,7 +143,7 @@ def display_saved_passwords():
         else:
             click.echo("No saved passwords found.")
     except FileNotFoundError:
-        click.echo("No saved passwords found.")
+        click.echo("No password file found.")
 
 
 def add_existing_password():
@@ -148,7 +155,7 @@ def add_existing_password():
     password = click.prompt('Please enter the password', hide_input=True, type=str)
 
     encrypted_password = encrypt_message(password, key)  # Encrypt the password
-    entry_id = str(uuid.uuid4())  # Generate a unique ID
+    entry_id = get_next_id()  # Generate a unique ID
 
     try:
         with open(PASSWORD_STORE_FILE, 'r+') as file:
@@ -184,41 +191,77 @@ def interactive_mode():
         return
 
     while True:
-        click.echo("\n1. Generate and Save a Password")
-        click.echo("2. Generate a Password without Saving")
-        click.echo("3. List Saved Passwords")
-        click.echo("4. Delete a Password")
-        click.echo("5. Delete All Saved Passwords")
-        click.echo("6. Add Existing Password")  # New option added
-        click.echo("7. Exit")
+        click.echo("\n1. Add Passwords")
+        click.echo("2. Manage Saved Passwords")
+        click.echo("3. Exit")
         choice = click.prompt("\nPlease enter your choice", type=int)
 
         if choice == 1:
-            length = click.prompt('\nPlease enter a password length', default=24, type=int)
-            name = click.prompt('Please enter a name for the password', type=str)
-            password = generate_password(length)
-            save_password(name, password)
-            click.echo(f'Generated and saved password: {password}\n')
+            add_password_menu()
         elif choice == 2:
-            length = click.prompt('\nPlease enter a password length', default=24, type=int)
-            password = generate_password(length)
-            click.echo(f'Generated password: {password}\n')
+            manage_password_menu()
         elif choice == 3:
-            display_saved_passwords()
-        elif choice == 4:
-            entry_id = click.prompt('\nPlease enter the ID of the password to delete', type=str)
-            delete_password(entry_id)
-        elif choice == 5:
-            delete_all_passwords()
-        elif choice == 6:  # Handle adding existing password
-            add_existing_password()
-        elif choice == 7:
             click.echo("\nExiting interactive mode. Goodbye!")
             break
         else:
             click.echo("\nInvalid choice. Please try again.")
 
         click.pause(info='\nPress any key to continue...')
+
+
+def add_password_menu():
+    click.clear()
+    click.echo("\nAdd Password")
+    click.echo("1. Generate and Save a Password")
+    click.echo("2. Add Existing Password")
+    click.echo("3. Exit.")
+    choice = click.prompt("\nPlease enter your choice", type=int)
+
+    if choice == 1:
+        length = click.prompt('\nPlease enter a password length', default=24, type=int)
+        name = click.prompt('Please enter a name for the password', type=str)
+        password = generate_password(length)
+        save_password(name, password)
+        click.echo(f'Generated and saved password: {password}\n')
+    elif choice == 2:
+        add_existing_password()
+    elif choice == 3:  
+        return
+    else:
+        click.echo("\nInvalid choice. Please try again.")
+
+
+def manage_password_menu():
+    click.clear()
+    click.echo("\nManage Saved Passwords")
+    key = load_key()
+    try:
+        data = json.loads(PASSWORD_STORE_FILE.read_text())
+        if data:
+            print(f"{'ID':<40} | {'Name':<20} | {'Password':<20}")
+            print("-" * 80)
+            for entry_id, details in data.items():
+                decrypted_pass = decrypt_message(bytes.fromhex(details["password"]), key)
+                print(f"{entry_id:<40} | {details['name']:<20} | {decrypted_pass:<20}")
+        else:
+            click.echo("No saved passwords found.")
+    except FileNotFoundError:
+        click.echo("No saved passwords found.")
+
+    click.echo("\n1. Delete a Password")
+    click.echo("2. Delete All Saved Passwords")
+    click.echo("3. Exit.")
+    choice = click.prompt("\nPlease enter your choice", type=int)
+
+    if choice == 1:
+        entry_id = click.prompt('\nPlease enter the ID of the password to delete', type=str)
+        delete_password(entry_id)
+    elif choice == 2:
+        delete_all_passwords()
+    elif choice == 3:
+        return
+    else:
+        click.echo("\nInvalid choice. Please try again.")
 
 
 @click.command()

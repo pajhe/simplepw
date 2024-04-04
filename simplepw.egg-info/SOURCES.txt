@@ -1,7 +1,6 @@
 setup.py
 simplepw/__init__.py
 simplepw/main.py
-simplepw/methods.py
 simplepw.egg-info/PKG-INFO
 simplepw.egg-info/SOURCES.txt
 simplepw.egg-info/dependency_links.txt

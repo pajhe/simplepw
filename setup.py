@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='simplepw',  # Der Name Ihres Projekts
-    version='0.2.0',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
+    version='0.2.1',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
