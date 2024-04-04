@@ -1,4 +1,5 @@
-import click
+#import click
+from click import clear, echo
 import json
 import click
 import string
@@ -42,6 +43,15 @@ def decrypt_message(encrypted_message, key):
     return Fernet(key).decrypt(encrypted_message).decode()
 
 
+def get_next_id():
+    try:
+        with open(PASSWORD_STORE_FILE, 'r') as file:
+            data = json.load(file)
+            return max(int(key) for key in data.keys()) + 1  # Find the highest ID and increment
+    except (FileNotFoundError, ValueError):
+        return 1  # Start with 1 if no saved passwords or invalid data
+
+
 def generate_password(length):
     alphabet = string.ascii_letters + string.digits + string.punctuation
     return ''.join(secrets.choice(alphabet) for i in range(length))
@@ -76,7 +86,7 @@ def verify_master_password():
 def save_password(name, password):
     key = load_key()
     encrypted_password = encrypt_message(password, key)
-    entry_id = str(uuid.uuid4())
+    entry_id = get_next_id()
     try:
         with open(PASSWORD_STORE_FILE, 'r+') as file:
             data = json.load(file)
@@ -148,7 +158,7 @@ def add_existing_password():
     password = click.prompt('Please enter the password', hide_input=True, type=str)
 
     encrypted_password = encrypt_message(password, key)  # Encrypt the password
-    entry_id = str(uuid.uuid4())  # Generate a unique ID
+    entry_id = get_next_id()  # Generate a unique ID
 
     try:
         with open(PASSWORD_STORE_FILE, 'r+') as file:
@@ -191,6 +201,7 @@ def interactive_mode():
         choice = click.prompt("\nPlease enter your choice", type=int)
 
         if choice == 1:
+            click.clear()
             add_password_menu()
         elif choice == 2:
             display_saved_passwords()
