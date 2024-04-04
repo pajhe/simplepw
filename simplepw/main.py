@@ -1,10 +1,7 @@
-#import click
-from click import clear, echo
 import json
 import click
 import string
 import secrets
-import uuid
 import bcrypt
 from cryptography.fernet import Fernet
 from pathlib import Path
@@ -146,7 +143,7 @@ def display_saved_passwords():
         else:
             click.echo("No saved passwords found.")
     except FileNotFoundError:
-        click.echo("No saved passwords found.")
+        click.echo("No password file found.")
 
 
 def add_existing_password():
@@ -195,19 +192,15 @@ def interactive_mode():
 
     while True:
         click.echo("\n1. Add Passwords")
-        click.echo("2. List Saved Passwords")
-        click.echo("3. Manage Saved Passwords")
-        click.echo("4. Exit")
+        click.echo("2. Manage Saved Passwords")
+        click.echo("3. Exit")
         choice = click.prompt("\nPlease enter your choice", type=int)
 
         if choice == 1:
-            click.clear()
             add_password_menu()
         elif choice == 2:
-            display_saved_passwords()
+            manage_password_menu()
         elif choice == 3:
-            delete_password_menu()
-        elif choice == 4:
             click.echo("\nExiting interactive mode. Goodbye!")
             break
         else:
@@ -238,20 +231,35 @@ def add_password_menu():
         click.echo("\nInvalid choice. Please try again.")
 
 
-def delete_password_menu():
+def manage_password_menu():
     click.clear()
     click.echo("\nManage Saved Passwords")
-    click.echo("1. Delete a Password")
+    key = load_key()
+    try:
+        data = json.loads(PASSWORD_STORE_FILE.read_text())
+        if data:
+            print(f"{'ID':<40} | {'Name':<20} | {'Password':<20}")
+            print("-" * 80)
+            for entry_id, details in data.items():
+                decrypted_pass = decrypt_message(bytes.fromhex(details["password"]), key)
+                print(f"{entry_id:<40} | {details['name']:<20} | {decrypted_pass:<20}")
+        else:
+            click.echo("No saved passwords found.")
+    except FileNotFoundError:
+        click.echo("No saved passwords found.")
+
+    click.echo("\n1. Delete a Password")
     click.echo("2. Delete All Saved Passwords")
     click.echo("3. Exit.")
     choice = click.prompt("\nPlease enter your choice", type=int)
 
     if choice == 1:
-        delete_password(click.prompt('\nPlease enter the ID of the password to delete', type=str))
+        entry_id = click.prompt('\nPlease enter the ID of the password to delete', type=str)
+        delete_password(entry_id)
     elif choice == 2:
         delete_all_passwords()
-    elif choice == 3: 
-        return  
+    elif choice == 3:
+        return
     else:
         click.echo("\nInvalid choice. Please try again.")
 
