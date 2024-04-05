@@ -282,7 +282,6 @@ def main(length, save, list, delete, generate):
     if save or list or delete:
         if not verify_master_password():
             return
-
     if list:
         display_saved_passwords()
     elif delete:

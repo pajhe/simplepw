@@ -1,10 +1,45 @@
 Metadata-Version: 2.1
 Name: simplepw
-Version: 0.2.1
+Version: 0.2.2
 Summary: A CLI Application for generating and managing passwords
 Author: pajhe
+Author-email: piejeys@proton.me
 Keywords: password generation
+Description-Content-Type: text/markdown
 Requires-Dist: cryptography>=2.8
 Requires-Dist: click
 Requires-Dist: bcrypt
 Requires-Dist: pathlib
+
+# SimplePW
+
+This password manager is a project designed for educational purposes to explore concepts of password security and encryption. While it utilizes encryption to protect your data, it is important to understand that it is not suitable for storing highly sensitive information in real-world scenarios.
+
+## Installation
+
+The easiest way to install the newest Version of 'simplepw' is to install it with pip:
+
+```bash
+pip install simplepw
+```
+
+To install a specific version of 'simplepw', first, download the wheel file (.whl) from the release page. Then, you can install it using pip:
+
+```bash
+pip install ./wheel_file.whl
+```
+
+## Usage Instructions
+
+To use Password Manager, activate the Command Line Interface (CLI) Interactive Mode by running the following command:
+
+```bash
+spw
+```
+
+For quickly generating a password without saving it you can run following command:
+
+```bash
+spw --generate
+```
+ 

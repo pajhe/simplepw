@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r", encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
     name='simplepw',  # Der Name Ihres Projekts
-    version='0.2.1',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
+    version='0.2.2',  # Starten Sie mit der Version 1.0.0 oder einer anderen gewünschten Versionsnummer
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -19,6 +22,9 @@ setup(
     },
     # Metadaten für Ihr Projekt
     author='pajhe',
+    author_email= 'piejeys@proton.me',
     description='A CLI Application for generating and managing passwords',
+    long_description= long_description,
+    long_description_content_type="text/markdown",
     keywords='password generation',
 )
