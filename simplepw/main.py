@@ -337,23 +337,20 @@ def add_password_menu():
 
 
 def manage_passwords_menu():
+    display_saved_passwords()
     while True:
         click.echo("\nManage Saved Passwords Menu:")
-        click.echo("1. Display All Saved Passwords")
-        click.echo("2. Delete a Specific Password")
-        click.echo("3. Delete All Passwords")
-        click.echo("4. Back to Main Menu")
+        click.echo("1. Delete a Specific Password")
+        click.echo("2. Delete All Passwords")
+        click.echo("3. Back to Main Menu")
         choice = click.prompt("Please enter your choice", type=int)
-
         if choice == 1:
-            display_saved_passwords()
-        elif choice == 2:
             entry_id = click.prompt('Enter the ID of the password to delete', type=int)
             delete_password(entry_id)
-        elif choice == 3:
+        elif choice == 2:
             delete_all_passwords()
-        elif choice == 4:
-            break
+        elif choice == 3:
+            return
         else:
             click.echo("Invalid selection. Please try again.")
 
