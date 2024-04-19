@@ -24,7 +24,6 @@ def get_config_dir():
 CONFIG_DIR_NAME = 'spw'
 DATABASE_NAME = 'password_store.db'
 CONFIG_KEY_FILE = 'pw.key'
-PASSWORD_STORE_FILE = 'data.json'
 MASTER_PASSWORD_FILE = Path(get_config_dir()) / 'master_password.hash'  # Use Path object
 
 
@@ -289,11 +288,9 @@ def display_saved_passwords():
 
 def add_existing_password():
     """Prompts the user for an existing password's name and password, then saves it to the password store using the save_password function."""
-    # Prompt the user for input
     name = click.prompt('Please enter the name for the password', type=str)
     password = click.prompt('Please enter the password', hide_input=True, type=str)
-    
-    # Save the provided password using the save_password function
+
     save_password(name, password)
 
 def main_menu():
@@ -357,8 +354,6 @@ def manage_passwords_menu():
 
 @click.command()
 @click.option('--length', default=24, help='Password length', required=False)
-@click.option('--handle', is_flag=True, help='Some other optional flag', required=False)
-# Ensure that the function signature includes parameters for all handled options.
 def main(length, handle):
     click.echo("Welcome to Password Manager")
     ensure_setup()
@@ -369,11 +364,6 @@ def main(length, handle):
             click.echo("Failed to set or verify master password. Exiting.")
             return
 
-    if handle:
-        # Additional handling based on flag
-        click.echo(f"Handling something with length {length}.")
-
-    # Then the main menu could be called or other operations.
     main_menu()
 
 if __name__ == '__main__':
