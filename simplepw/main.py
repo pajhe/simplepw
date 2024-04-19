@@ -87,7 +87,6 @@ def create_database(database_path):
       "name": "TEXT NOT NULL",
       "encrypted_password": "TEXT NOT NULL"  # Updated column name for clarity
   }
-
   # Build CREATE TABLE statement dynamically
   columns = ", ".join([f"{col} {schema}" for col, schema in table_schema.items()])
   sql = f"""CREATE TABLE IF NOT EXISTS {table_name} ({columns})"""
@@ -187,11 +186,16 @@ def verify_master_password():
         return False
 
 def save_password(name, password):
-    """Saves the named password into the database after encryption."""
-    ensure_setup()  # Ensure setup is complete which in turn ensures database is configured
+    """Saves the named password into the database after encrypting both name and password."""
+    ensure_setup()  # Ensure setup is complete which includes database configuration
     key = load_key()
     if key is None:
-        click.echo("Encryption key is missing. Cannot secure the password.")
+        click.echo("Encryption key is missing. Cannot secure the name and password.")
+        return
+
+    encrypted_name = encrypt_message(name, key)
+    if encrypted_name is None:
+        click.echo("Failed to encrypt the name.")
         return
 
     encrypted_password = encrypt_message(password, key)
@@ -201,14 +205,15 @@ def save_password(name, password):
 
     try:
         conn = get_database_connection()
-        c = conn.cursor()
-        c.execute("INSERT INTO passwords (name, encrypted_password) VALUES (?, ?)", (name, encrypted_password.hex()))
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO passwords (name, encrypted_password) VALUES (?, ?)", (encrypted_name.hex(), encrypted_password.hex()))
         conn.commit()
+        click.echo(f"Data for '{name}' added successfully.")
     except sqlite3.Error as e:
-        click.echo(f"Failed to save password: {e}")
+        click.echo(f"Failed to save data: {e}")
     finally:
-        conn.close()
-        click.echo(f"Password '{name}' added successfully.")
+        if conn:
+            conn.close()
 
 
 def delete_password(entry_id):
@@ -279,11 +284,16 @@ def display_saved_passwords():
     click.echo("-" * 60)
 
     # Loop through each password record
-    for entry_id, name, encrypted_pass in passwords:
-        decrypted_pass = decrypt_message(bytes.fromhex(encrypted_pass), key)
+    for entry_id, encrypted_name_hex, encrypted_pass_hex in passwords:
+        decrypted_name = decrypt_message(bytes.fromhex(encrypted_name_hex), key)
+        decrypted_pass = decrypt_message(bytes.fromhex(encrypted_pass_hex), key)
+        
+        if decrypted_name is None:
+            decrypted_name = "Error decrypting name"
         if decrypted_pass is None:
             decrypted_pass = "Error decrypting password"
-        click.echo("{:<5} | {:<20} | {:<30}".format(entry_id, name, decrypted_pass))
+            
+        click.echo("{:<5} | {:<20} | {:<30}".format(entry_id, decrypted_name, decrypted_pass))
 
 
 def add_existing_password():
