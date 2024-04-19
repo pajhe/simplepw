@@ -1,2 +1,6 @@
 /.venv
 /22main.py
+/my_database.db 
+/password_store.db
+/simplepw.egg-info
+/build

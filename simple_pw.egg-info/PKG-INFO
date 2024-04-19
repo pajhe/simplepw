@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: simple-pw
-Version: 0.1.8
-Summary: A CLI Application for generating and save passwords
-Author: piejeys
-Keywords: password generation
-Requires-Dist: cryptography>=2.8
-Requires-Dist: click
-Requires-Dist: bcrypt
