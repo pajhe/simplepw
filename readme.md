@@ -2,6 +2,10 @@
 
 This password manager is a project designed for educational purposes to explore concepts of password security and encryption. While it utilizes encryption to protect your data, it is important to understand that it is not suitable for storing highly sensitive information in real-world scenarios.
 
+# Breaking Change:
+
+Since Version 0.2.3 i use an sqlite db as the data storage. Don´t update before saving/backing up your data.
+
 ## Installation
 
 The easiest way to install the newest Version of 'simplepw' is to install it with pip:

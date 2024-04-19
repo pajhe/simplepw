@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name='simplepw',
-    version='0.2.3',
+    version='0.2.3.1',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
