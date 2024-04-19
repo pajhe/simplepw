@@ -294,6 +294,7 @@ def add_existing_password():
     save_password(name, password)
 
 def main_menu():
+    click.clear()
     while True:
         click.echo("\nMain Menu:")
         click.echo("1. Add Password")
@@ -328,7 +329,8 @@ def add_password_menu():
         elif choice == 2:
             add_existing_password()
         elif choice == 3:
-            break
+            click.clear()
+            return
         else:
             click.echo("Invalid selection. Please try again.")
 
@@ -347,6 +349,7 @@ def manage_passwords_menu():
         elif choice == 2:
             delete_all_passwords()
         elif choice == 3:
+            click.clear()
             return
         else:
             click.echo("Invalid selection. Please try again.")
@@ -354,7 +357,7 @@ def manage_passwords_menu():
 
 @click.command()
 @click.option('--length', default=24, help='Password length', required=False)
-def main(length, handle):
+def main(length):
     click.echo("Welcome to Password Manager")
     ensure_setup()
 
